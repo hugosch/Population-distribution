@@ -1,70 +1,56 @@
-# Project Title
+# Population distribution using OpenStreetMap
 
-One Paragraph of project description goes here
+Allowed you to create a distribution map of the population using buildings coordinates with OpenStreetMap
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+To run this program you need to generate un .json file with buildings's coordinates of city or a neighborhood. I used download a map from openstreetmap and then get the .json file using Spatial Management Desktop and the using MapShaper
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib as plt
+import json
+from shapely.geometry import Polygon
+import matplotlib.pyplot as plt
+import geopandas as gpd
+from numpy.random import RandomState, uniform
+from shapely.geometry import Point
+from shapely.geometry import shape 
+import shapefile
 
-```
-Give examples
-```
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
+To run a test, you need the write your .json's file name and write the number of the population of the area
 
 ### Break down into end to end tests
 
-Explain what these tests test and why
+At the end, you will get a coordinate file with all the population projected in  buildings
 
 ```
-Give an example
-```
 
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+pandas
+seaborn
+matplotlib
+
+from shapely.geometry import Polygon
+import matplotlib.pyplot as plt
+geopandas
+import shapefile
+
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+(https://github.com/agaidus/census_data_extraction/blob/master/census_mapper.py
 
 ## Versioning
 
@@ -72,17 +58,6 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Hugo Schoen ** 
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
 
