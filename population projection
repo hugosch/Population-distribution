@@ -1,0 +1,113 @@
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib as plt
+import json
+from shapely.geometry import Polygon
+import matplotlib.pyplot as plt
+import geopandas as gpd
+from numpy.random import RandomState, uniform
+from shapely.geometry import Point
+from shapely.geometry import shape 
+import shapefile
+
+
+%matplotlib inline
+
+# Open file with buildings coordinates
+with open("test3.json", "r") as read_file:
+    data = json.load(read_file)
+
+
+def PolyArea(x,y):
+    return 0.5*np.abs(np.dot(x,np.roll(y,1))-np.dot(y,np.roll(x,1)))
+
+def gen_random_points_poly(poly, num_points, seed = None):
+    """
+    Returns a list of N randomly generated points within a polygon. 
+    """
+    min_x, min_y, max_x, max_y = poly.bounds
+    points = []
+    i=0
+    while len(points) < num_points:
+        s=RandomState(seed+i) if seed else RandomState(seed)
+        random_point = Point([s.uniform(min_x, max_x), s.uniform(min_y, max_y)])
+        if random_point.within(poly):
+            points.append(random_point)
+        i+=1
+    return points
+
+def gen_points_in_gdf_polys(geometry, values, points_per_value = None, seed = None):
+    """
+    Take a GeoSeries of Polygons along with a Series of values and returns randomly generated points within
+    these polygons. Optionally takes a "points_per_value" integer which indicates the number of points that 
+    should be generated for each 1 value.
+    """
+    if points_per_value:
+        new_values = (values/points_per_value).astype(int)
+    else:
+        new_values = values
+    new_values = new_values[new_values>0]
+    g = gpd.GeoDataFrame(data = {'vals':new_values}, geometry = geometry)
+    
+    a = g.apply(lambda row: tuple(gen_random_points_poly(row['geometry'], row['vals'], seed)),1)
+    b = gpd.GeoSeries(a.apply(pd.Series).stack(), crs = geometry.crs)
+    b.name='geometry'
+    return b
+
+
+
+# Application's user estimation for this area
+population=1000
+areasize=0
+numbui=len(data['features'])
+
+# Estimate the population density for the area
+for j in range(numbui):
+    x=[]
+    y=[]
+    if data['features'][j]['geometry']['coordinates']:
+        
+        poly=len(data['features'][j]['geometry']['coordinates'][0])
+        
+        for i in range(poly):
+            x.append(data['features'][j]['geometry']['coordinates'][0][i][0])
+            y.append(data['features'][j]['geometry']['coordinates'][0][i][1])
+            
+        areasize += PolyArea(x,y)
+        
+areasize=areasize*6370**2
+popdensity= population/areasize
+
+# Create application's user coordinates
+populationpoint=[]
+z=[]
+
+for j in range(numbui):
+    x=[]
+    y=[]
+    buildarea=[]
+    buildinghabit = 0
+    if len(data['features'][j]['geometry']['coordinates']):
+        
+        poly=len(data['features'][j]['geometry']['coordinates'][0])
+        
+        for i in range(poly):
+            x.append(data['features'][j]['geometry']['coordinates'][0][i][0])
+            y.append(data['features'][j]['geometry']['coordinates'][0][i][1])
+            buildarea.append(data['features'][j]['geometry']['coordinates'][0][i])           
+        buildinghabit=PolyArea(x,y)*6370**2*popdensity
+        buildinghabit=round(buildinghabit,0)
+        p=Polygon(buildarea)
+        g = gpd.GeoSeries([p])
+        vals = pd.Series([buildinghabit])
+        random_points = gen_points_in_gdf_polys(geometry = g, values=vals)
+#         Ploting the user in the buildings
+        ax = g.plot()
+        random_points.plot(color='black', ax=ax, alpha=.7)
+        
+        populationpoint.append(random_points)
+        z = [list(i) for i in populationpoint]
+# get the coordinates of each user
+print([[z2.x, z2.y] for z1 in z for z2 in z1])
+        
